@@ -20,7 +20,7 @@ enum LogLevel{
      */
     NO_LOGGING
     /**
-     * Only errors will be logged 
+     * Only errors will be logged
      */
     Error,
     /**
@@ -52,7 +52,7 @@ public class Logger
     public void logError(final String errorMessage)
     {
         if (logLevel != LogLevel.NO_LOGGING)
-            System.out.println(ANSI_RED + "[ERROR]:\t" + errorMessage + ANSI_RESET);
+            System.out.println(ANSI_RED + "[ERROR]:\t" + errorMessage + "\n" + ANSI_RESET);
     }
 
     /**
@@ -61,7 +61,7 @@ public class Logger
     public void logDebug(final String debugMessage)
     {
         if (logLevel == LogLevel.Debug)
-            System.out.println(ANSI_YELLOW + "[DEBUG]:\t" + debugMessage + ANSI_RESET);
+            System.out.println(ANSI_YELLOW + "[DEBUG]:\t" + debugMessage + "\n" + ANSI_RESET);
     }
 
     /**
@@ -70,12 +70,12 @@ public class Logger
     public void logInfo(final String infoMessage)
     {
         if (logLevel == LogLevel.Info || logLevel == LogLevel.Debug)
-            System.out.println(ANSI_WHITE + "[INFO]:\t" + infoMessage + ANSI_RESET);
+            System.out.println(ANSI_WHITE + "[INFO]:\t" + infoMessage + "\n" + ANSI_RESET);
 
     }
 
     /**
      * Current log level
      */
-    private LogLevel logLevel; 
+    private LogLevel logLevel;
 }

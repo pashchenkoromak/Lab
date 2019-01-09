@@ -7,13 +7,13 @@ import commons.logger;
  */
 public class Table
 {
-    /** @brief 
+    /** @brief
      * CREATE TABLE name (
      *      col1 datatype,
      *      ...
      *  )
      * @param[in] inputCommand - in form as below.
-     */ 
+     */
     Table(final String inputCommand)
     {}
 
@@ -24,11 +24,11 @@ public class Table
     {
         return name;
     }
-    
+
     /**
      * Parse and execute command to table.
      * Available commands for now:
-     * 
+     *
      */
     public Boolean executeCommand(final String command)
     {
@@ -49,13 +49,11 @@ public class Table
         return rows.add(row);
     }
 
-    
-
     /**
      * Column name as key, and datatype as value.
      */
     private Map<String, String> cols;
-    
+
     /**
      * Records in database
      */

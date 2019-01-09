@@ -1,6 +1,9 @@
-import java.utils.Map;
-import commons.logger;
+package db;
 
+import java.util.Map;
+import commons.Logger;
+import commons.LogLevel;
+import db.Table;
 /**
  * Manager for tables
  */
@@ -28,13 +31,13 @@ public class DataBase
     /**
      * Split input command by whitespaces and uppercase first two words (command).
      */
-    private String[] splitAndCheck(final String command)
+    private String[] split(final String command)
     {
-        logDebug(String.format("splitting and checking \n%s", command));
+        logger.logDebug(String.format("Splitting and checking \n%s", command));
 
-        Pattern delim = new Pattern("\s");
-        String[] output = delim.split(command);
-        if (output.size() < 3)
+        String delim = "[\\s,()]";
+		String[] output = command.split(delim);
+        if (output.length < 3)
         {
             logger.logError(String.format("Cannot execute command: \n%s\n Maybe it is not supported for now. Check documentation.", command));
         }
@@ -49,8 +52,7 @@ public class DataBase
      */
     private Boolean isCreateTable(final String[] splittedCommand)
     {
-        logger.logDebug(String.format("Check if command: \n%s\n\t- CREATE TABLE\n", command));
-        return splittedCommand[0] == 'CREATE' && splittedCommand[1] == 'TABLE';
+        return splittedCommand[0].equals("CREATE") && splittedCommand[1].equals("TABLE");
     }
 
     /**
@@ -58,8 +60,7 @@ public class DataBase
      */
     private Boolean isInsertInto(final String[] splittedCommand)
     {
-        logger.logDebug(String.format("Check if command: \n%s\n\t- INSERT INTO\n", command));
-        return splittedCommand[0] == 'INSERT' && splittedCommand[1] == 'INTO';
+        return splittedCommand[0].equals("INSERT") && splittedCommand[1].equals("INTO");
     }
 
     /**
@@ -67,14 +68,13 @@ public class DataBase
      */
     private Boolean isAlterTable(final String[] splittedCommand)
     {
-        logger.logDebug(String.format("Check if command: \n%s\n\t- ALTER TABLE\n", command));
-        return splittedCommand[0] == 'ALTER' && splittedCommand[1] == 'TABLE';
+        return splittedCommand[0].equals("ALTER") && splittedCommand[1].equals("TABLE");
     }
 
     /**
      * Take table name from splitted command
      */
-    private getTableName(String[] splittedCommand)
+    private final String getTableName(String[] splittedCommand)
     {
         return splittedCommand[2];
     }
@@ -83,17 +83,21 @@ public class DataBase
      */
     public Boolean executeCommand(final String command)
     {
-        logger.logDebug(String.format("Execute command: \n%s\n", command));
-        String[] output = splitAndCheck(command);
+        logger.logDebug(String.format("Execute command: \n%s", command));
+        String[] output = split(command);
 
         if (isCreateTable(output))
         {
-            logger.logDebug(String.format("That's CREATE TABLE: \n%s\n", command));
+            logger.logDebug(String.format("That's CREATE TABLE: \n%s", command));
             tables.put(getTableName(output), new Table(command));
+            return true;
         }
 
         if (isInsertInto(output) || isAlterTable(output))
             return tables.get(getTableName(output)).executeCommand(command);
+
+        logger.logError(String.format("This command is unsupported yet:\n%s", command));
+        return false;
     }
 
     /**

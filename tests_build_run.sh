@@ -10,10 +10,13 @@ javac -d ./build -cp build/: ./db/*.java && \
 
 echo ""
 
-echo "build Main"
-javac -d ./build -cp build/: ./Main.java
+echo "Build tests"
+javac -d ./build/ -cp ./build:/usr/share/java/junit4.jar ./tests/*.java && \
+    echo "'tests' package is built" || exit 1;
 
 echo ""
 
-echo "Run Main"
-cd build && java Main
+echo "Run tests"
+cd ./build &&
+    java -cp /usr/share/java/junit4.jar:./ tests.TestRunner || exit 1
+echo "Success"

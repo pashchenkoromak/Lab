@@ -47,6 +47,7 @@ public class Table
      */
     public Boolean executeCommand(final SQLCommandManager sqlCommandManager)
     {
+        //if (sqlCommandManager.isInsertInto)
         logger.logError(String.format("This command is unsupported yet:\n%s", sqlCommandManager.getCommand()));
         return false;
     }

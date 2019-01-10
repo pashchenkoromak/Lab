@@ -40,7 +40,8 @@ public class Logger
     {
         if (logLevel == LogLevel.Debug
             || logLevel == LogLevel.Error
-            || logLevel == LogLevel.Info)
+            || logLevel == LogLevel.Info
+            || logLevel == LogLevel.Trace)
             System.out.println(ANSI_RED + loggerName + "\t[ERROR]:\t" + errorMessage + '\n' + ANSI_RESET);
     }
 
@@ -49,7 +50,8 @@ public class Logger
      */
     public void logDebug(final String debugMessage)
     {
-        if (logLevel == LogLevel.Debug)
+        if (logLevel == LogLevel.Debug
+        || logLevel == LogLevel.Trace)
             System.out.println(ANSI_YELLOW + loggerName + "\t[DEBUG]:\t" + debugMessage + '\n' + ANSI_RESET);
     }
 
@@ -60,9 +62,28 @@ public class Logger
     {
         if (logLevel == LogLevel.Debug
             || logLevel == LogLevel.Error
-            || logLevel == LogLevel.Info)
+            || logLevel == LogLevel.Info
+            || logLevel == LogLevel.Trace)
             System.out.println(ANSI_WHITE + loggerName + "\t[INFO]:\t" + infoMessage + '\n' + ANSI_RESET);
+    }
 
+    /**
+     * Log trace
+     */
+    public void logTraceIn()
+    {
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        if (logLevel == LogLevel.Trace)
+            System.out.println(ANSI_PURPLE + loggerName + "\t[TRACE]: Enter to " + stackTraceElements[2] + ANSI_RESET);
+    }
+    /**
+     * Log trace out
+     */
+    public void logTraceOut()
+    {
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        if (logLevel == LogLevel.Trace)
+            System.out.println(ANSI_PURPLE + loggerName + "\t[TRACE]: Exit from " + stackTraceElements[2] + ANSI_RESET);
     }
 
     /**
@@ -74,4 +95,8 @@ public class Logger
      * Logger name
      */
     private String loggerName;
+
+    /**
+     * Tabs for Traces
+     */
 };

@@ -19,5 +19,9 @@ public enum LogLevel{
     /**
      * Info + debug info
      */
-    Debug
+    Debug,
+    /**
+     * Log when go in\out of each function
+     */
+    Trace
 }

@@ -5,6 +5,7 @@ import commons.Logger;
 import commons.Constants;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Vector;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +22,10 @@ public class SQLCommandManager
     public SQLCommandManager()
     {
         command = new String();
-        logger = new Logger("SQLCommandManager", LogLevel.Debug);
+        logger = new Logger("SQLCommandManager", LogLevel.Trace);
+        logger.logTraceIn();
         logger.logDebug("Create SQL SQLCommandManager");
+        logger.logTraceOut();
     }
 
     /**
@@ -30,12 +33,14 @@ public class SQLCommandManager
      */
     private String[] removeEmptyStrings(String[] input)
     {
+        logger.logTraceIn();
         List<String> values = new ArrayList<String>();
         for(String data: input) {
             if(!data.isEmpty()) {
                 values.add(data);
             }
         }
+        logger.logTraceOut();
         return values.toArray(new String[values.size()]);
     }
 
@@ -44,12 +49,11 @@ public class SQLCommandManager
      */
     private String[] split()
     {
+        logger.logTraceIn();
         logger.logDebug(String.format("Splitting and checking \n\t%s", command));
 
         String delim = "[\\s,()]";
 		String[] output = removeEmptyStrings(command.split(delim));
-
-
 
         if (output.length < 3)
         {
@@ -58,6 +62,7 @@ public class SQLCommandManager
 
         output[0] = output[0].toUpperCase();
         output[1] = output[1].toUpperCase();
+        logger.logTraceOut();
         return output;
     }
 
@@ -67,9 +72,11 @@ public class SQLCommandManager
      */
     public void loadCommand(String command)
     {
+        logger.logTraceIn();
         this.command = command;
         this.splittedCommand = split();
         logger.logDebug(String.format("Successfull loaded and splitted command \n\t%s", command));
+        logger.logTraceOut();
     }
 
     /**
@@ -77,6 +84,8 @@ public class SQLCommandManager
      */
     public Boolean isCreateTable()
     {
+        logger.logTraceIn();
+        logger.logTraceOut();
         return splittedCommand[0].equals("CREATE") && splittedCommand[1].equals("TABLE");
     }
 
@@ -85,6 +94,8 @@ public class SQLCommandManager
      */
     public Boolean isInsertInto()
     {
+        logger.logTraceIn();
+        logger.logTraceOut();
         return splittedCommand[0].equals("INSERT") && splittedCommand[1].equals("INTO");
     }
 
@@ -93,6 +104,8 @@ public class SQLCommandManager
      */
     public Boolean isAlterTable()
     {
+        logger.logTraceIn();
+        logger.logTraceOut();
         return splittedCommand[0].equals("ALTER") && splittedCommand[1].equals("TABLE");
     }
 
@@ -101,6 +114,8 @@ public class SQLCommandManager
      */
     public String getTableName()
     {
+        logger.logTraceIn();
+        logger.logTraceOut();
         return splittedCommand[2];
     }
 
@@ -109,6 +124,8 @@ public class SQLCommandManager
      */
     public String getCommand()
     {
+        logger.logTraceIn();
+        logger.logTraceOut();
         return command;
     }
 
@@ -118,6 +135,7 @@ public class SQLCommandManager
      */
     public Set<Pair> getCols()
     {
+        logger.logTraceIn();
         Set<Pair> cols = new TreeSet<Pair>();
         int splittedLength = splittedCommand.length;
         for(int wordNum = 3; wordNum < splittedLength; wordNum += 2)
@@ -132,9 +150,49 @@ public class SQLCommandManager
             }
         }
         logger.logDebug("Finished getCols method");
+        logger.logTraceOut();
         return cols;
     }
+
+    /**
+     * Get values (column, value). If columns aren't set - column is empty.
+     *
+     * For example:
+     * INSERT INTO tablename ( col1, col3 ) VALUES ( val1, val2 )
+     */
+    Vector<Pair> getValues()
+    {
+        logger.logTraceIn();
+        Vector<Pair> values = new Vector<Pair>();
+        int splittedLength = splittedCommand.length;
+        int wordNum = 3;
+        while (splittedCommand[wordNum] != "VALUES" && wordNum < splittedLength)
+        {
+            values.add(new Pair(splittedCommand[wordNum], ""));
+            wordNum++;
+        }
+        wordNum++;
+        for(int i = 0; wordNum < splittedLength; i++)
+        {
+            String value = values.elementAt(i).second();
+            value = splittedCommand[wordNum++];
+        }
+        logger.logTraceOut();
+        return values;
+    }
+
+    /**
+     * Contains splitted command (splitting by [\\s(),])
+     */
+
     String[] splittedCommand;
+    /**
+     * Constains last loaded command
+     */
+
     String command;
+    /**
+     * Use for logging
+     */
     Logger logger;
 }

@@ -1,9 +1,12 @@
 package db;
 
 import java.util.Map;
+import java.util.TreeMap;
 import commons.Logger;
 import commons.LogLevel;
 import db.Table;
+import db.SQLCommandManager;
+
 /**
  * Manager for tables
  */
@@ -14,7 +17,10 @@ public class DataBase
      */
     public DataBase()
     {
-        logger.setLogLevel(LogLevel.Debug);
+        logger = new Logger("DataBase", LogLevel.Debug);
+        logger.logDebug("Create new DataBase");
+        sqlCommandManager = new SQLCommandManager();
+        tables = new TreeMap<String, Table>();
     }
     /**
      * Used for loading database from file
@@ -29,77 +35,38 @@ public class DataBase
     {}
 
     /**
-     * Split input command by whitespaces and uppercase first two words (command).
-     */
-    private String[] split(final String command)
-    {
-        logger.logDebug(String.format("Splitting and checking \n%s", command));
-
-        String delim = "[\\s,()]";
-		String[] output = command.split(delim);
-        if (output.length < 3)
-        {
-            logger.logError(String.format("Cannot execute command: \n%s\n Maybe it is not supported for now. Check documentation.", command));
-        }
-
-        output[0] = output[0].toUpperCase();
-        output[1] = output[1].toUpperCase();
-        return output;
-    }
-
-    /**
-     * Check if command is "CREATE TABLE"
-     */
-    private Boolean isCreateTable(final String[] splittedCommand)
-    {
-        return splittedCommand[0].equals("CREATE") && splittedCommand[1].equals("TABLE");
-    }
-
-    /**
-     * Check if command is "INSERT INTO"
-     */
-    private Boolean isInsertInto(final String[] splittedCommand)
-    {
-        return splittedCommand[0].equals("INSERT") && splittedCommand[1].equals("INTO");
-    }
-
-    /**
-     * Check if command is "ALTER TABLE"
-     */
-    private Boolean isAlterTable(final String[] splittedCommand)
-    {
-        return splittedCommand[0].equals("ALTER") && splittedCommand[1].equals("TABLE");
-    }
-
-    /**
-     * Take table name from splitted command
-     */
-    private final String getTableName(String[] splittedCommand)
-    {
-        return splittedCommand[2];
-    }
-    /**
      * Looks like this isnt best function for this. But I really dont want polymorphism here, so will think...
      */
     public Boolean executeCommand(final String command)
     {
-        logger.logDebug(String.format("Execute command: \n%s", command));
-        String[] output = split(command);
+        logger.logDebug(String.format("Execute command: \n\t%s", command));
 
-        if (isCreateTable(output))
+        sqlCommandManager.loadCommand(command);
+        if (sqlCommandManager.isCreateTable())
         {
-            logger.logDebug(String.format("That's CREATE TABLE: \n%s", command));
-            tables.put(getTableName(output), new Table(command));
+            logger.logDebug(String.format("That's CREATE TABLE: \n\t%s", command));
+            tables.put(sqlCommandManager.getTableName(), new Table(sqlCommandManager));
             return true;
         }
 
-        if (isInsertInto(output) || isAlterTable(output))
-            return tables.get(getTableName(output)).executeCommand(command);
+        if (sqlCommandManager.isInsertInto() || sqlCommandManager.isAlterTable())
+            return tables.get(sqlCommandManager.getTableName()).executeCommand(sqlCommandManager);
 
         logger.logError(String.format("This command is unsupported yet:\n%s", command));
         return false;
     }
 
+    public String toString()
+    {
+        StringBuilder res = new StringBuilder();
+        for (Map.Entry<String, Table> table : tables.entrySet())
+        {
+            res.append(String.format("%s\n", table.getValue().toString()));
+        }
+        return res.toString();
+    }
+
+    SQLCommandManager sqlCommandManager;
     /**
      * Name/table map.
      */

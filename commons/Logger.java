@@ -20,6 +20,11 @@ public class Logger
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
 
+    public Logger(String name, LogLevel logLevel)
+    {
+        loggerName = name;
+        this.logLevel = logLevel;
+    }
     /**
      * Change log level for this logger.
      */
@@ -33,8 +38,10 @@ public class Logger
      */
     public void logError(final String errorMessage)
     {
-        if (logLevel != LogLevel.NO_LOGGING)
-            System.out.println(ANSI_RED + "[ERROR]:\t" + errorMessage + ANSI_RESET);
+        if (logLevel == LogLevel.Debug
+            || logLevel == LogLevel.Error
+            || logLevel == LogLevel.Info)
+            System.out.println(ANSI_RED + loggerName + "\t[ERROR]:\t" + errorMessage + '\n' + ANSI_RESET);
     }
 
     /**
@@ -43,7 +50,7 @@ public class Logger
     public void logDebug(final String debugMessage)
     {
         if (logLevel == LogLevel.Debug)
-            System.out.println(ANSI_YELLOW + "[DEBUG]:\t" + debugMessage + ANSI_RESET);
+            System.out.println(ANSI_YELLOW + loggerName + "\t[DEBUG]:\t" + debugMessage + '\n' + ANSI_RESET);
     }
 
     /**
@@ -51,8 +58,10 @@ public class Logger
      */
     public void logInfo(final String infoMessage)
     {
-        if (logLevel == LogLevel.Info || logLevel == LogLevel.Debug)
-            System.out.println(ANSI_WHITE + "[INFO]:\t" + infoMessage + ANSI_RESET);
+        if (logLevel == LogLevel.Debug
+            || logLevel == LogLevel.Error
+            || logLevel == LogLevel.Info)
+            System.out.println(ANSI_WHITE + loggerName + "\t[INFO]:\t" + infoMessage + '\n' + ANSI_RESET);
 
     }
 
@@ -60,4 +69,9 @@ public class Logger
      * Current log level
      */
     private LogLevel logLevel;
+
+    /**
+     * Logger name
+     */
+    private String loggerName;
 };

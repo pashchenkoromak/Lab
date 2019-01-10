@@ -1,24 +1,19 @@
 package db;
 
-import javafx.util.Pair;
 import java.util.Vector;
+import java.util.Set;
+import java.util.TreeSet;
+import commons.Pair;
 import commons.Logger;
 import commons.Constants;
+import commons.LogLevel;
+import db.SQLCommandManager;
 
 /**
  * @brief Class for managing tables
  */
 public class Table
 {
-    private String[] split(final String command)
-    {
-        String delim = "[\\s,()]";
-        String[] output = command.split(delim);
-
-        output[0] = output[0].toUpperCase();
-        output[1] = output[1].toUpperCase();
-        return output;
-    }
     /** @brief
      * "CREATE TABLE name (
      *      col1 datatype,
@@ -26,23 +21,15 @@ public class Table
      *  )"
      * @param[in] command - in form as below.
      */
-    Table(final String command)
+    Table(final SQLCommandManager sqlCommandManager)
     {
-        logger.logInfo(String.format("Create table from command:\n%s", command));
-        String[] splitted = split(command);
+        logger = new Logger("Table", LogLevel.Debug);
+        logger.logInfo(String.format("Create table from command:\n\t%s", sqlCommandManager.getCommand()));
+        cols = new TreeSet<Pair>();
+        rows = new Vector<Vector<String>>();
 
-        name = splitted[2];
-        int splittedLength = splitted.length;
-        for(int wordNum = 3; wordNum < splittedLength; wordNum += 2)
-        {
-            if (!splitted[wordNum].isEmpty())
-            {
-                String colName = splitted[wordNum];
-                String colType = splitted[wordNum + 1];
-                if (Constants.DataTypes.contains(colType))
-                    cols.add(new Pair<>(colName, colType));
-            }
-        }
+        name = sqlCommandManager.getTableName();
+        cols = sqlCommandManager.getCols();
     }
 
     /**
@@ -58,9 +45,9 @@ public class Table
      * Available commands for now:
      *
      */
-    public Boolean executeCommand(final String command)
+    public Boolean executeCommand(final SQLCommandManager sqlCommandManager)
     {
-        logger.logError(String.format("This command is unsupported yet:\n%s", command));
+        logger.logError(String.format("This command is unsupported yet:\n%s", sqlCommandManager.getCommand()));
         return false;
     }
 
@@ -85,10 +72,26 @@ public class Table
         return rows.add(row);
     }
 
+    public String toString()
+    {
+        StringBuilder res = new StringBuilder();
+        res.append(String.format("Table %s\n", getName()));
+        for (Pair col : cols) {
+            res.append(String.format("%s\t", col.toString()));
+        }
+        for (Vector<String> row : rows) {
+            res.append('\n');
+            for (String record : row) {
+                res.append(String.format("%s\t", record));
+            }
+        }
+        return res.toString();
+    }
+
     /**
      * Column name as key, and datatype as value.
      */
-    private Vector<Pair<String, String>> cols;
+    private Set<Pair> cols;
 
     /**
      * Records in database
@@ -99,5 +102,9 @@ public class Table
      * Use it for logging
      */
     private Logger logger;
+
+    /**
+     * Table name
+     */
     private String name;
 }

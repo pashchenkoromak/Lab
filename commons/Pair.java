@@ -13,8 +13,8 @@ package commons;
 
 final public class Pair implements Comparable<Pair>{
 
-    private final String first;
-    private final String second;
+    public String first;
+    public String second;
 
     public Pair() {
         first = null;
@@ -29,14 +29,6 @@ final public class Pair implements Comparable<Pair>{
     public Pair(String first, String second) {
         this.first = first;
         this.second = second;
-    }
-
-    public String first() {
-      return first;
-    }
-
-    public String second() {
-      return second;
     }
 
     public int compareTo(Pair p){

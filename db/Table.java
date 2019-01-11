@@ -26,7 +26,7 @@ public class Table
         logger = new Logger("Table", LogLevel.Trace);
         logger.logTraceIn();
         logger.logInfo(String.format("Create table from command:\n\t%s", sqlCommandManager.getCommand()));
-        cols = new TreeSet<Pair>();
+        cols = new Vector<Pair>();
         rows = new Vector<Vector<String>>();
 
         name = sqlCommandManager.getTableName();
@@ -46,33 +46,45 @@ public class Table
 
     Vector<String> createRow(Vector<Pair> colVal)
     {
-        Vector<String> newRow = new Vector<Pair>();
-        newRow.setSize(cols.length);
-        Boolean useDefaultColOrder = record.first().isEmpty();
+        logger.logTraceIn();
+        Vector<String> newRow = new Vector<String>();
+        if (colVal.size() == (0))
+        {
+            logger.logError("Empty row insertion!");
+            newRow.setSize(cols.size());
+            logger.logTraceOut();
+            return newRow;
+        }
+        Boolean customValues = !colVal.firstElement().first.isEmpty();
+        int colsSize = cols.size();
+        if (customValues)
+        {
+            newRow.setSize(colsSize);
+        }
         for (Pair record : colVal) {
-            if (useDefaultColOrder)
+            if (!customValues)
             {
-                newRow.add(record.second());
+                newRow.add(record.second);
+            } else
+            {
+                for (int i = 0; i < colsSize; i++) {
+                    if (cols.elementAt(i).first.equals(record.first))
+                        newRow.setElementAt(record.second, i);
+                }
             }
         }
+        return newRow;
     }
 
     public Boolean insertInto(SQLCommandManager sqlCommandManager)
     {
         logger.logTraceIn();
-        Boolean returnValue = false;
         logger.logInfo(String.format("Inserting into %s", sqlCommandManager.getTableName()));
         Vector<Pair> colVal = sqlCommandManager.getValues();
         Vector<String> newRow = createRow(colVal);
-        if (checkFormat(newRow)){
-            rows.add(newRow);
-            returnValue = true;
-        } else
-        {
-            returnValue = false;
-        }
+        Boolean successInsertion = addRow(newRow);
         logger.logTraceOut();
-        return returnValue;
+        return successInsertion;
     }
 
     /**
@@ -83,15 +95,15 @@ public class Table
     public Boolean executeCommand(SQLCommandManager sqlCommandManager)
     {
         logger.logTraceIn();
-        Boolean returnValue = false;
+        Boolean successExecution = false;
         if (sqlCommandManager.isInsertInto())
         {
-            returnValue = insertInto(sqlCommandManager);
+            successExecution = insertInto(sqlCommandManager);
         } else {
             logger.logError(String.format("This command is unsupported yet:\n%s", sqlCommandManager.getCommand()));
         }
         logger.logTraceOut();
-        return returnValue;
+        return successExecution;
     }
 
     /**
@@ -110,13 +122,15 @@ public class Table
     private Boolean addRow(Vector<String> row)
     {
         logger.logTraceIn();
+        Boolean successAddition;
         if (!checkFormat(row)){
             logger.logError(String.format("Wrong ROW format for row: %s and columns %s", row, cols.toString()));
-            return false;
+            successAddition = false;
         }
         logger.logInfo(String.format("Add to %s table new row: %s", name, row));
+        successAddition = rows.add(row);
         logger.logTraceOut();
-        return rows.add(row);
+        return successAddition;
     }
 
     public String toString()
@@ -140,7 +154,7 @@ public class Table
     /**
      * Column name as key, and datatype as value.
      */
-    private Set<Pair> cols;
+    private Vector<Pair> cols;
 
     /**
      * Records in database

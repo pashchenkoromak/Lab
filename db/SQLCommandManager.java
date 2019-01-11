@@ -133,10 +133,10 @@ public class SQLCommandManager
      * Get cols from a command, like
      * CREATE TABLE <name> ( colname coltype, colname coltype, ...)
      */
-    public Set<Pair> getCols()
+    public Vector<Pair> getCols()
     {
         logger.logTraceIn();
-        Set<Pair> cols = new TreeSet<Pair>();
+        Vector<Pair> cols = new Vector<Pair>();
         int splittedLength = splittedCommand.length;
         for(int wordNum = 3; wordNum < splittedLength; wordNum += 2)
         {
@@ -164,9 +164,12 @@ public class SQLCommandManager
     {
         logger.logTraceIn();
         Vector<Pair> values = new Vector<Pair>();
+
         int splittedLength = splittedCommand.length;
         int wordNum = 3;
-        while (splittedCommand[wordNum] != "VALUES" && wordNum < splittedLength)
+        Boolean customValues = !splittedCommand[wordNum].equals("VALUES");
+
+        while (!splittedCommand[wordNum].equals("VALUES") && wordNum < splittedLength)
         {
             values.add(new Pair(splittedCommand[wordNum], ""));
             wordNum++;
@@ -174,8 +177,13 @@ public class SQLCommandManager
         wordNum++;
         for(int i = 0; wordNum < splittedLength; i++)
         {
-            String value = values.elementAt(i).second();
-            value = splittedCommand[wordNum++];
+            logger.logDebug(String.format("i = %d,\n\twordNum = %d,\n\tvalue = %s,\n\tvalues.size = %s", i, wordNum, splittedCommand[wordNum], values.size()));
+            if (customValues){
+                values.elementAt(i).second = splittedCommand[wordNum++];
+            } else
+            {
+                values.add(new Pair("", splittedCommand[wordNum++]));
+            }
         }
         logger.logTraceOut();
         return values;
